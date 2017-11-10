@@ -1,0 +1,101 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<style>
+body{
+font-size: 30px;
+font-weight: bold;
+text-align: center;
+}
+
+.username{
+  color: blue;
+}
+
+.score{
+  color: black;
+}
+
+.question{
+  color: black;
+}
+
+.answer{
+  color: blue;
+  border: 1px gray solid;
+  margin: 3px;
+}
+
+.right{
+ background-color: #33ff33;
+}
+
+.wrong{
+background-color: #ff3333;
+}
+
+</style>
+<body>
+
+<div id="username" class="username">Usernme <span id="score" class="score">Score</span> points</div>
+<div id="question" class="question">Question</div>
+<div id="answer1" class="answer">Answer1</div>
+<div id="answer2" class="answer">Answer2</div>
+<div id="answer3" class="answer">Answer3</div>
+<div id="answer4" class="answer">Answer4</div>
+<div id="answer5" class="answer">Answer5</div>
+
+</body>
+
+<script>
+
+var Model = {
+	"Player": {
+		"username": "john",
+		"score": 5
+	},
+	"currentQuestion": { 
+		"text" :"1+1 ?",
+		"level" : 3,
+		"answer" : 4
+	},
+	"possibleAnswers": ["0", "6", "bananas", "y", "2"],
+}
+
+function display(Model){
+	$('#username').html(Model.Player.username);
+	$('#score').html(Model.Player.Score);
+	$('#question').html(Model.currentQuestion.text);
+	$('#answer1').html(Model.possibleAnswers[0]);
+	$('#answer2').html(Model.possibleAnswers[1]);
+	$('#answer3').html(Model.possibleAnswers[2]);
+	$('#answer4').html(Model.possibleAnswers[3]);
+	$('#answer5').html(Model.possibleAnswers[4]);
+	$('.answer').on('click', function(){
+		if(Model.currentQuestion.answer == parseInt(this.id.substring(6))-1)
+		{
+			handleRight();
+		} else {
+			handleWrong();
+		}
+	});
+}
+
+function handleRight(){
+  $('#question').removeClass("wrong");
+  $('#question').addClass("right");
+  Model.Player.Score += Model.question.level;
+}
+
+
+function handleWrong(){
+  $('#question').addClass("wrong");
+  $('#question').removeClass("right");
+  Model.Player.Score -= Model.question.level;
+}
+
+display(Model);
+
+
+
+</script>
+

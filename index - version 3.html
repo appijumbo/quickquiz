@@ -1,0 +1,197 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<style>
+body{
+font-size: 30px;
+font-weight: bold;
+text-align: center;
+}
+
+.username{
+  color: blue;
+}
+
+.score{
+  color: black;
+}
+
+.question{
+  color: black;
+}
+
+.answer{
+  color: blue;
+  border: 1px gray solid;
+  margin: 3px;
+}
+
+.right{
+ background-color: #33ff33;
+}
+
+.wrong{
+background-color: #ff3333;
+}
+
+</style>
+<body>
+
+<div><span id="username" class="username">Usernme</span> <span id="score" class="score">Score</span> points</div>
+<div id="question" class="question">Question</div>
+<div id="answer1" class="answer">Answer1</div>
+<div id="answer2" class="answer">Answer2</div>
+<div id="answer3" class="answer">Answer3</div>
+<div id="answer4" class="answer">Answer4</div>
+<div id="answer5" class="answer">Answer5</div>
+
+</body>
+
+<script>
+var Restult = {
+    "post": {
+        "select": "plain",
+        "list": "records",
+        "database": "Northwind (MsSQL)",
+        "connection": "3",
+        "schema": "dbo",
+        "table": "Questions",
+        "fetch": "objects",
+        "startTime": "342211.53"
+    },
+    "sql": "SELECT  TOP 30  * FROM [dbo].[Questions] WHERE 1=1  ",
+    "data": [
+        {
+            "ID": "1",
+            "Question": "3+3 ",
+            "Answer": "6",
+            "Level": "1",
+            "Timestamp": "2017-11-07 211020.013"
+        },
+        {
+            "ID": "2",
+            "Question": "b-b= ",
+            "Answer": "0",
+            "Level": "2",
+            "Timestamp": "2017-11-07 211032.467"
+        },
+        {
+            "ID": "3",
+            "Question": "First day",
+            "Answer": "Monday",
+            "Level": "3",
+            "Timestamp": "2017-11-07 211134.627"
+        },
+        {
+            "ID": "4",
+            "Question": "True or",
+            "Answer": "False",
+            "Level": "2",
+            "Timestamp": "2017-11-07 211145.110"
+        },
+        {
+            "ID": "5",
+            "Question": "Water",
+            "Answer": "H2O",
+            "Level": "2",
+            "Timestamp": "2017-11-07 211157.333"
+        }
+    ]
+};
+
+var Model = {
+	"Player": {
+		"username": "john",
+		"score": 5
+	},
+	"currentQuestion": { 
+		"text" :"1+1 ?",
+		"level" : 3,
+		"answer" : 4
+	},
+	"possibleAnswers": ["0", "6", "bananas", "y", "2"],
+};
+
+function display(Model){
+	$('#username').html(Model.Player.username);
+	$('#score').html(Model.Player.score);
+	$('#question').html(Model.currentQuestion.text);
+	$('#answer1').html(Model.possibleAnswers[0]);
+	$('#answer2').html(Model.possibleAnswers[1]);
+	$('#answer3').html(Model.possibleAnswers[2]);
+	$('#answer4').html(Model.possibleAnswers[3]);
+	$('#answer5').html(Model.possibleAnswers[4]);
+	// Earlier the event was asigned here. Every time another event.
+}
+
+function handleRight(){
+  $('#question').removeClass("wrong");
+  $('#question').addClass("right");
+  Model.Player.score += parseInt(Model.currentQuestion.level);
+}
+
+function handleWrong(){
+  $('#question').addClass("wrong");
+  $('#question').removeClass("right");
+  Model.Player.score -= Model.currentQuestion.level;
+  if(Model.Player.score < 0)
+  {
+	Model.Player.score = 0;
+  }
+}
+
+function getRandomInt(min, max) {
+	// Got this from: https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function update(Model)
+{
+	// Pick a random question
+	var writeQuestionIndex = getRandomInt(0, Restult.data.length - 1);
+	var rightQuestion = Restult.data[writeQuestionIndex];
+	// Make it the write answer for a random button
+	var buttonIndex = getRandomInt(0, Restult.data.length - 1);
+	
+	Model.possibleAnswers[buttonIndex] = rightQuestion.Answer;
+	Model.currentQuestion.text = rightQuestion.Question;
+	Model.currentQuestion.level = rightQuestion.Level;
+	Model.currentQuestion.answer = buttonIndex;
+	// Populate with wrong answers
+	
+	// Keep a list with consmed suggested answers. If we have duplicates, and only one of the duplicates is considered write, it will be inconsistent. 
+	var consummedQestionIndexes = [writeQuestionIndex];
+	for(i=0; i<5; i++)
+	{
+		if(i != buttonIndex) // Already populated with the right answer
+		{
+			var currentIndex = writeQuestionIndex;
+			while(consummedQestionIndexes.indexOf(currentIndex) >= 0)
+			{
+				currentIndex = getRandomInt(0, Restult.data.length - 1);
+			}
+			consummedQestionIndexes.push(currentIndex);
+			Model.possibleAnswers[i] = Restult.data[currentIndex].Answer;
+		}
+	}
+}
+
+function nextGame()
+{
+	update(Model);
+	display(Model);
+}
+
+
+$('.answer').on('click', function(){
+	if(Model.currentQuestion.answer == parseInt(this.id.substring(6))-1)
+	{
+		handleRight();
+	} else {
+		handleWrong();
+	}
+	nextGame();
+});
+nextGame();
+
+</script>
+
